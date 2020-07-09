@@ -48,6 +48,7 @@ type Manager struct {
 // sensitive information as determined by the rules set in a gitleaks config
 type Leak struct {
 	Line       string    `json:"line"`
+	LineNumber int       `json:"lineNumber"`
 	Offender   string    `json:"offender"`
 	Commit     string    `json:"commit"`
 	Repo       string    `json:"repo"`

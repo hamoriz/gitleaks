@@ -131,19 +131,20 @@ func ruleContainFilePathRegex(rule config.Rule) bool {
 	return true
 }
 
-func sendLeak(offender string, line string, filename string, rule config.Rule, c *object.Commit, repo *Repo) {
+func sendLeak(offender string, line string, lineNumber int, filename string, rule config.Rule, c *object.Commit, repo *Repo) {
 	repo.Manager.SendLeaks(manager.Leak{
-		Line:     line,
-		Offender: offender,
-		Commit:   c.Hash.String(),
-		Repo:     repo.Name,
-		Message:  c.Message,
-		Rule:     rule.Description,
-		Author:   c.Author.Name,
-		Email:    c.Author.Email,
-		Date:     c.Author.When,
-		Tags:     strings.Join(rule.Tags, ", "),
-		File:     filename,
+		Line:       line,
+		LineNumber: lineNumber,
+		Offender:   offender,
+		Commit:     c.Hash.String(),
+		Repo:       repo.Name,
+		Message:    c.Message,
+		Rule:       rule.Description,
+		Author:     c.Author.Name,
+		Email:      c.Author.Email,
+		Date:       c.Author.When,
+		Tags:       strings.Join(rule.Tags, ", "),
+		File:       filename,
 	})
 }
 
@@ -176,7 +177,7 @@ func InspectFile(content string, fullpath string, c *object.Commit, repo *Repo) 
 		}
 	}
 
-	for _, rule := range repo.config.Rules {
+	for index, rule := range repo.config.Rules {
 		start := time.Now()
 
 		// For each rule we want to check filename whitelists
@@ -196,7 +197,7 @@ func InspectFile(content string, fullpath string, c *object.Commit, repo *Repo) 
 
 		// If it doesnt contain a content regex then it is a filename regex match
 		if !ruleContainRegex(rule) {
-			sendLeak("Filename/path offender: "+filename, "N/A", fullpath, rule, c, repo)
+			sendLeak("Filename/path offender: "+filename, "N/A", index, fullpath, rule, c, repo)
 		} else {
 			//otherwise we check if it matches content regex
 			inspectFileContents(content, fullpath, rule, c, repo)
@@ -233,6 +234,7 @@ func inspectFileContents(content string, path string, rule config.Rule, c *objec
 
 			line := content[start:end]
 			offender := content[loc[0]:loc[1]]
+			index := strings.Count(content[0:end], "\n")
 			groups := rule.Regex.FindStringSubmatch(offender)
 
 			if isOffenderWhiteListed(offender, rule.Whitelist) {
@@ -243,7 +245,7 @@ func inspectFileContents(content string, path string, rule config.Rule, c *objec
 				continue
 			}
 
-			sendLeak(offender, line, path, rule, c, repo)
+			sendLeak(offender, line, index, path, rule, c, repo)
 		}
 	}
 }
