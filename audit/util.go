@@ -177,7 +177,7 @@ func InspectFile(content string, fullpath string, c *object.Commit, repo *Repo) 
 		}
 	}
 
-	for index, rule := range repo.config.Rules {
+	for _, rule := range repo.config.Rules {
 		start := time.Now()
 
 		// For each rule we want to check filename whitelists
@@ -197,7 +197,7 @@ func InspectFile(content string, fullpath string, c *object.Commit, repo *Repo) 
 
 		// If it doesnt contain a content regex then it is a filename regex match
 		if !ruleContainRegex(rule) {
-			sendLeak("Filename/path offender: "+filename, "N/A", index, fullpath, rule, c, repo)
+			sendLeak("Filename/path offender: "+filename, "N/A", 0, fullpath, rule, c, repo)
 		} else {
 			//otherwise we check if it matches content regex
 			inspectFileContents(content, fullpath, rule, c, repo)

@@ -288,9 +288,9 @@ func (manager *Manager) Report() error {
 			}
 		} else {
 			w := csv.NewWriter(file)
-			_ = w.Write([]string{"repo", "line", "commit", "offender", "rule", "tags", "commitMsg", "author", "email", "file", "date"})
+			_ = w.Write([]string{"repo", "line", "lineNumber", "commit", "offender", "rule", "tags", "commitMsg", "author", "email", "file", "date"})
 			for _, leak := range manager.GetLeaks() {
-				w.Write([]string{leak.Repo, leak.Line, leak.Commit, leak.Offender, leak.Rule, leak.Tags, leak.Message, leak.Author, leak.Email, leak.File, leak.Date.Format(time.RFC3339)})
+				w.Write([]string{leak.Repo, leak.Line, string(leak.LineNumber), leak.Commit, leak.Offender, leak.Rule, leak.Tags, leak.Message, leak.Author, leak.Email, leak.File, leak.Date.Format(time.RFC3339)})
 			}
 			w.Flush()
 		}
